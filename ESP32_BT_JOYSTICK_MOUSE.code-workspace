@@ -2,6 +2,10 @@
 	"folders": [
 		{
 			"path": "."
+		},
+		{
+			"name": "ESP32_BT_MOUSE",
+			"path": "ESP32_BT_MOUSE"
 		}
 	],
 	"settings": {}
