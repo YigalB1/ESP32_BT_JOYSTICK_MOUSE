@@ -3,7 +3,7 @@
 #include <classes.h>
 
 
-// GPIOs numbers on ESP32
+// GPIOs numbers on ESP32 // 34 is badddd
 const int XPin    = 36;
 const int YPin    = 39;
 const int PushButton  = 34;
