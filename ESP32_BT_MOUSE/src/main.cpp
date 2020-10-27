@@ -6,7 +6,7 @@
 // GPIOs numbers on ESP32 // 34 is badddd
 const int XPin    = 36;
 const int YPin    = 39;
-const int PushButton  = 34;
+const int PushButton_PIN  = 34;
 
 const int LED1 = 18;
 const int LED2 = 5;
@@ -109,24 +109,31 @@ joystic tank_joystick;
 BleMouse bleMouse;
 void test_hw();
 
+void IRAM_ATTR Butt_pressed_isr() {
+  tank_joystick.butt_pressed = true;
+  //Serial.println("...Pressed...");
+  }
+
 // *** start SETUP
 void setup() {
-  Serial.begin(9600);
-  Serial.println("Starting setup, testing leds");
-  test_hw();
-  Serial.println("Test Joystick");
-  test_joystick();
-
-  pinMode(PushButton, INPUT_PULLUP); // GPIO as input // Problem - not a good GPIO, no pullup. 
+  pinMode(PushButton_PIN, INPUT); // GPIO as input // Problem - not a good GPIO, no pullup. 
+                              // solution: add pullup on PCB. mext version: change pin?
+  attachInterrupt(PushButton_PIN, Butt_pressed_isr, FALLING);
   pinMode(LED1, OUTPUT); 
   pinMode(LED2, OUTPUT); 
   pinMode(LED3, OUTPUT); 
 
+  Serial.begin(9600);
+  Serial.println("Starting setup, testing leds");
+  test_hw();
+  Serial.println("Test Joystick");
+  // est_joystick(); endless loop for testing
+  
   // Before start, get X & Y values to be considered as zero,
   // due to non exact readings
   // then translate X & Y  into values from -10 to +10
 
-  tank_joystick.set_hw(XPin,YPin,PushButton,mouse_range);
+  tank_joystick.set_hw(XPin,YPin,PushButton_PIN,mouse_range);
   tank_joystick.estimate_joystic_zeros();
 
   bleMouse.begin();
@@ -159,6 +166,10 @@ void loop() {
 
 
   tank_joystick.read_jostick();
+  if (tank_joystick.butt_pressed) {
+    bleMouse.click(MOUSE_LEFT);
+    tank_joystick.butt_pressed = false;
+  }
   bleMouse.move(tank_joystick.Xval,tank_joystick.Yval,0);
 
   
@@ -214,7 +225,7 @@ void test_joystick() {
   while (true) {
     int t_rdX = analogRead(XPin);
     int t_rdY = analogRead(YPin);
-    int butt_tmp =  digitalRead(PushButton);
+    int butt_tmp =  digitalRead(PushButton_PIN);
 
     if (abs(t_rdX-mid) > max_delta_x )
       max_delta_x = abs(t_rdX-mid);

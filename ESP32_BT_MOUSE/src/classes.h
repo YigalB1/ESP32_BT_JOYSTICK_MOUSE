@@ -3,7 +3,6 @@
 class joystic {
   int range = 20;
 
-
   public:
   int x_min_zero = 7777; // the min x still considered zero (becasue joystic is not 100% calibrated)
   int x_max_zero = -777; // the max x still considered zero
@@ -16,17 +15,20 @@ class joystic {
   bool Push_button_state = false;
   bool ON_state = false ;
   bool change_occured; // is this read different than previous?
-  int Xpin,Ypin,PushButton; // the hardwrae pins of the ESP32
+  int Xpin,Ypin,PushButtpin; // the hardwrae pins of the ESP32
   int mouse_mov_range;
+  bool butt_pressed = false; // indicates if joystic's button was pressed
 
 
   void set_hw(int _xpin,int _ypin, int _pushbutton, int _mouse_range) {
     Xpin = _xpin;
     Ypin = _ypin;
-    PushButton = _pushbutton;
+    PushButtpin = _pushbutton;
     mouse_mov_range = _mouse_range;
   }
   
+  
+
   void estimate_joystic_zeros() {
     for (size_t i = 0; i < 100; i++)
     {
@@ -58,7 +60,9 @@ class joystic {
     int t_rdX = analogRead(Xpin);
     int t_rdY = analogRead(Ypin);
    
-    int butt_tmp =  digitalRead(PushButton);
+   // read of putton is done by interrupt
+   /*
+    int butt_tmp =  digitalRead(PushButtpin);
 
     if (butt_tmp == HIGH) {
       if (ON_state == true )
@@ -66,6 +70,9 @@ class joystic {
       else
         ON_state = false;
     }
+    */ 
+
+
 
     Xval = 0;    
     if (t_rdX < x_min_zero ) {
